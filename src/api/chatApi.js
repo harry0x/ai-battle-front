@@ -1,0 +1,77 @@
+import api from "../lib/axios.js";
+
+/**
+ * Fetch paginated list of user's chats.
+ * @param {number} page
+ * @param {number} limit
+ * @returns {Promise<{chats: object[], total: number, page: number, hasMore: boolean}>}
+ */
+export async function getChatsApi(page = 1, limit = 20) {
+  const { data } = await api.get("/chats", { params: { page, limit } });
+  return data.data;
+}
+
+/**
+ * Create a new chat.
+ * @param {string} [title]
+ * @returns {Promise<{chat: object}>}
+ */
+export async function createChatApi(title) {
+  const { data } = await api.post("/chats", { title });
+  return data.data;
+}
+
+/**
+ * Get a single chat by ID.
+ * @param {string} chatId
+ * @returns {Promise<{chat: object}>}
+ */
+export async function getChatApi(chatId) {
+  const { data } = await api.get(`/chats/${chatId}`);
+  return data.data;
+}
+
+/**
+ * Soft delete a chat.
+ * @param {string} chatId
+ * @returns {Promise<void>}
+ */
+export async function deleteChatApi(chatId) {
+  await api.delete(`/chats/${chatId}`);
+}
+
+/**
+ * Update a chat's title.
+ * @param {string} chatId
+ * @param {string} title
+ * @returns {Promise<{chat: object}>}
+ */
+export async function updateChatTitleApi(chatId, title) {
+  const { data } = await api.patch(`/chats/${chatId}`, { title });
+  return data.data;
+}
+
+/**
+ * Fetch paginated messages for a chat (cursor-based).
+ * @param {string} chatId
+ * @param {string} [cursor]
+ * @param {number} [limit]
+ * @returns {Promise<{messages: object[], hasMore: boolean, nextCursor: string|null}>}
+ */
+export async function getMessagesApi(chatId, cursor, limit = 20) {
+  const params = { limit };
+  if (cursor) params.cursor = cursor;
+  const { data } = await api.get(`/chats/${chatId}/messages`, { params });
+  return data.data;
+}
+
+/**
+ * Send a message to a chat.
+ * @param {string} chatId
+ * @param {string} content
+ * @returns {Promise<{userMessage: object, assistantMessage: object}>}
+ */
+export async function sendMessageApi(chatId, content) {
+  const { data } = await api.post(`/chats/${chatId}/messages`, { content });
+  return data.data;
+}
