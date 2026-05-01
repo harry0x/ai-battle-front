@@ -61,10 +61,11 @@ api.interceptors.response.use(
 
     // Only attempt refresh for 401 errors that haven't been retried
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Don't try to refresh if the failing request IS the refresh endpoint
       if (originalRequest.url?.includes("/auth/refresh")) {
         clearAccessToken();
-        window.location.href = "/login";
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+          window.location.href = "/login";
+        }
         return Promise.reject(error);
       }
 
@@ -93,7 +94,9 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         clearAccessToken();
-        window.location.href = "/login";
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+          window.location.href = "/login";
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
