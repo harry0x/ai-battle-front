@@ -4,26 +4,58 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-surface: #fafafa;
-  --color-surface-raised: #ffffff;
-  --color-surface-sunken: #f3f4f6;
-  --color-surface-code: #f1f3f5;
+  --color-surface: var(--theme-surface);
+  --color-surface-raised: var(--theme-surface-raised);
+  --color-surface-sunken: var(--theme-surface-sunken);
+  --color-surface-code: var(--theme-surface-code);
 
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
 
-  --color-border: #e5e7eb;
-  --color-border-light: #f3f4f6;
+  --color-border: var(--theme-border);
+  --color-border-light: var(--theme-border-light);
 
   --color-accent: #6366f1;
-  --color-accent-light: #e0e7ff;
-  --color-accent-text: #4f46e5;
+  --color-accent-light: var(--theme-accent-light);
+  --color-accent-text: var(--theme-accent-text);
 
   --color-green: #059669;
-  --color-green-light: #ecfdf5;
+  --color-green-light: var(--theme-green-light);
   --color-blue: #6366f1;
-  --color-blue-light: #eef2ff;
+  --color-blue-light: var(--theme-blue-light);
+}
+
+:root {
+  --theme-surface: #fafafa;
+  --theme-surface-raised: #ffffff;
+  --theme-surface-sunken: #f3f4f6;
+  --theme-surface-code: #f1f3f5;
+  --theme-text-primary: #111827;
+  --theme-text-secondary: #6b7280;
+  --theme-text-muted: #9ca3af;
+  --theme-border: #e5e7eb;
+  --theme-border-light: #f3f4f6;
+  --theme-accent-light: #e0e7ff;
+  --theme-accent-text: #4f46e5;
+  --theme-green-light: #ecfdf5;
+  --theme-blue-light: #eef2ff;
+}
+
+.dark {
+  --theme-surface: #111827;
+  --theme-surface-raised: #1f2937;
+  --theme-surface-sunken: #0b0f19;
+  --theme-surface-code: #1f2937;
+  --theme-text-primary: #f9fafb;
+  --theme-text-secondary: #9ca3af;
+  --theme-text-muted: #6b7280;
+  --theme-border: #374151;
+  --theme-border-light: #1f2937;
+  --theme-accent-light: #3730a3;
+  --theme-accent-text: #818cf8;
+  --theme-green-light: #064e3b;
+  --theme-blue-light: #1e1b4b;
 }
 
 /* Base resets */
