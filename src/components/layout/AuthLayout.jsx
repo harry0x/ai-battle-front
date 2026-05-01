@@ -1,5 +1,7 @@
 import { Outlet, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import useAuthStore from "../../store/authStore.js";
+import { useAuth } from "../../hooks/useAuth.js";
 
 /**
  * Layout wrapper for authentication pages (login, register).
@@ -7,6 +9,13 @@ import useAuthStore from "../../store/authStore.js";
  */
 export default function AuthLayout() {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const { checkAuth } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      checkAuth();
+    }
+  }, []);
 
   if (isLoading) {
     return (
