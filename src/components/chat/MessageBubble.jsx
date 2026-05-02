@@ -181,33 +181,41 @@ export default function MessageBubble({ message }) {
     );
   }
 
-  // Fallback for user messages or normal text/error messages
+  // Simple pill-shaped bubble for user messages
+  if (isUser) {
+    return (
+      <div className="flex justify-end mb-4 animate-fade-up">
+        <div className="max-w-[80%] rounded-3xl px-5 py-2.5 bg-surface-raised text-text-primary shadow-sm border border-border">
+          <div className="prose text-sm leading-snug [&>p]:m-0 text-text-primary">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback for system/error messages
   return (
-    <div
-      className={`flex ${isUser ? "justify-end mb-4" : "justify-start"} animate-fade-up`}
-    >
+    <div className="flex justify-start mb-4 animate-fade-up">
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-          isUser
-            ? "bg-accent text-white rounded-br-md"
-            : isError 
+          isError 
             ? "bg-red-500/10 text-red-400 border border-red-500/20 rounded-bl-md"
-            : "bg-surface-sunken text-text-primary rounded-bl-md"
+            : "bg-surface-sunken text-text-primary border border-border rounded-bl-md"
         }`}
       >
-        <div className={`flex items-center gap-2 mb-0.5 ${isUser ? "justify-end" : ""}`}>
-          <span className={`text-[10px] font-medium ${isUser ? "text-white/70" : isError ? "text-red-400/70" : "text-text-muted"}`}>
-            {isUser ? (user?.name || "You") : isError ? "System Error" : "AI Assistant"}
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className={`text-[10px] font-medium ${isError ? "text-red-400/70" : "text-text-muted"}`}>
+            {isError ? "System Error" : "AI Assistant"}
           </span>
         </div>
 
-        {/* Use [&>p]:m-0 to eliminate the tall paragraph margins inside user bubbles */}
-        <div className={`prose text-sm leading-snug ${isUser ? "prose-invert [&>p]:m-0" : ""}`}>
-          <ReactMarkdown>{isError ? comparisonData.message : message.content}</ReactMarkdown>
+        <div className="prose text-sm leading-snug text-text-primary [&>p]:m-0">
+          <ReactMarkdown>{isError ? comparisonData?.message : message.content}</ReactMarkdown>
         </div>
 
-        <div className={`flex ${isUser ? "justify-end" : "justify-start"} mt-1`}>
-          <span className={`text-[10px] ${isUser ? "text-white/50" : isError ? "text-red-400/50" : "text-text-muted"}`}>
+        <div className="flex justify-start mt-1">
+          <span className={`text-[10px] ${isError ? "text-red-400/50" : "text-text-muted"}`}>
             {formatTime(message.createdAt)}
           </span>
         </div>
