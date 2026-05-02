@@ -1,15 +1,41 @@
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { formatTime } from "../../utils/formatDate.js";
 import useAuthStore from "../../store/authStore.js";
 
-/**
- * Single message bubble component.
- * Renders user messages right-aligned.
- * Parses assistant messages to render side-by-side model comparisons.
- */
+const CopyButton = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
+      title="Copy to clipboard"
+    >
+      {copied ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      )}
+    </button>
+  );
+};
+
 export default function MessageBubble({ message }) {
   const { user } = useAuthStore();
   const isUser = message.role === "user";
+  const [expandedModel, setExpandedModel] = useState(null); // 'mistral' | 'cohere' | null
 
   let isComparison = false;
   let isError = false;
@@ -38,26 +64,52 @@ export default function MessageBubble({ message }) {
         
         {/* Parallel View */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Mistral Box */}
           <div className="flex flex-col bg-surface-sunken rounded-2xl border border-border overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500/10 to-transparent p-3 border-b border-border">
+            <div className="bg-gradient-to-r from-blue-500/10 to-transparent p-3 border-b border-border flex justify-between items-center">
               <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
                 <span className="w-5 h-5 rounded flex items-center justify-center bg-blue-500/20 text-blue-500">M</span>
                 Mistral Model
               </h3>
+              <div className="flex items-center gap-1">
+                <CopyButton text={comparisonData.mistral} />
+                <button
+                  onClick={() => setExpandedModel('mistral')}
+                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
+                  title="Full Screen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div className="p-4 prose prose-sm prose-invert max-w-none text-text-secondary overflow-y-auto max-h-[400px]">
+            <div className="p-4 prose prose-sm max-w-none text-text-secondary overflow-y-auto max-h-[600px]">
               <ReactMarkdown>{comparisonData.mistral}</ReactMarkdown>
             </div>
           </div>
           
+          {/* Cohere Box */}
           <div className="flex flex-col bg-surface-sunken rounded-2xl border border-border overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-500/10 to-transparent p-3 border-b border-border">
+            <div className="bg-gradient-to-r from-emerald-500/10 to-transparent p-3 border-b border-border flex justify-between items-center">
               <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
                 <span className="w-5 h-5 rounded flex items-center justify-center bg-emerald-500/20 text-emerald-500">C</span>
                 Cohere Model
               </h3>
+              <div className="flex items-center gap-1">
+                <CopyButton text={comparisonData.cohere} />
+                <button
+                  onClick={() => setExpandedModel('cohere')}
+                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
+                  title="Full Screen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div className="p-4 prose prose-sm prose-invert max-w-none text-text-secondary overflow-y-auto max-h-[400px]">
+            <div className="p-4 prose prose-sm max-w-none text-text-secondary overflow-y-auto max-h-[600px]">
               <ReactMarkdown>{comparisonData.cohere}</ReactMarkdown>
             </div>
           </div>
@@ -96,6 +148,35 @@ export default function MessageBubble({ message }) {
             </div>
           </div>
         </div>
+
+        {/* Full Screen Modal */}
+        {expandedModel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-up">
+            <div className="bg-surface rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-border">
+              <div className="p-4 border-b border-border flex justify-between items-center bg-surface-raised">
+                <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                  {expandedModel === 'mistral' ? (
+                    <><span className="w-6 h-6 rounded flex items-center justify-center bg-blue-500/20 text-blue-500 text-sm">M</span> Mistral Model</>
+                  ) : (
+                    <><span className="w-6 h-6 rounded flex items-center justify-center bg-emerald-500/20 text-emerald-500 text-sm">C</span> Cohere Model</>
+                  )}
+                </h3>
+                <div className="flex items-center gap-2">
+                  <CopyButton text={expandedModel === 'mistral' ? comparisonData.mistral : comparisonData.cohere} />
+                  <button onClick={() => setExpandedModel(null)} className="p-2 bg-surface-sunken hover:bg-border rounded-lg transition-colors text-text-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto flex-1 prose prose-sm md:prose-base max-w-none text-text-primary">
+                <ReactMarkdown>{expandedModel === 'mistral' ? comparisonData.mistral : comparisonData.cohere}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -103,10 +184,10 @@ export default function MessageBubble({ message }) {
   // Fallback for user messages or normal text/error messages
   return (
     <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} animate-fade-up`}
+      className={`flex ${isUser ? "justify-end mb-4" : "justify-start"} animate-fade-up`}
     >
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+        className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
           isUser
             ? "bg-accent text-white rounded-br-md"
             : isError 
@@ -114,17 +195,18 @@ export default function MessageBubble({ message }) {
             : "bg-surface-sunken text-text-primary rounded-bl-md"
         }`}
       >
-        <div className={`flex items-center gap-2 mb-1 ${isUser ? "justify-end" : ""}`}>
+        <div className={`flex items-center gap-2 mb-0.5 ${isUser ? "justify-end" : ""}`}>
           <span className={`text-[10px] font-medium ${isUser ? "text-white/70" : isError ? "text-red-400/70" : "text-text-muted"}`}>
             {isUser ? (user?.name || "You") : isError ? "System Error" : "AI Assistant"}
           </span>
         </div>
 
-        <div className={`prose text-sm leading-relaxed ${isUser ? "prose-invert" : ""}`}>
+        {/* Use [&>p]:m-0 to eliminate the tall paragraph margins inside user bubbles */}
+        <div className={`prose text-sm leading-snug ${isUser ? "prose-invert [&>p]:m-0" : ""}`}>
           <ReactMarkdown>{isError ? comparisonData.message : message.content}</ReactMarkdown>
         </div>
 
-        <div className={`flex ${isUser ? "justify-end" : "justify-start"} mt-1.5`}>
+        <div className={`flex ${isUser ? "justify-end" : "justify-start"} mt-1`}>
           <span className={`text-[10px] ${isUser ? "text-white/50" : isError ? "text-red-400/50" : "text-text-muted"}`}>
             {formatTime(message.createdAt)}
           </span>

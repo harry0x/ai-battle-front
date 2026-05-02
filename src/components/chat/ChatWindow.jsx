@@ -53,7 +53,7 @@ export default function ChatWindow({ chatId }) {
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Messages area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-1">
+        <div className="max-w-5xl mx-auto px-4 py-6 space-y-1">
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="flex items-center gap-3 text-sm text-text-muted">

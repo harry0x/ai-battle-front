@@ -52,14 +52,18 @@ export default function ChatInput({ onSubmit, disabled = false }) {
             className="flex-shrink-0 w-8 h-8 rounded-xl bg-accent text-white flex items-center justify-center hover:bg-accent/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             id="send-btn"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </button>
         </div>
-        <p className="text-[10px] text-text-muted text-center mt-2">
-          Press Enter to send, Shift+Enter for new line
-        </p>
       </form>
     </div>
   );
