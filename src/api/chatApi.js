@@ -73,7 +73,8 @@ export async function getMessagesApi(chatId, cursor, limit = 20) {
  * @returns {Promise<void>}
  */
 export async function streamMessageApi(chatId, content, onEvent) {
-  const token = localStorage.getItem("token");
+  const { getAccessToken } = await import("../lib/axios.js");
+  const token = getAccessToken();
   
   const response = await fetch(`${api.defaults.baseURL}/chats/${chatId}/messages`, {
     method: "POST",
@@ -81,6 +82,7 @@ export async function streamMessageApi(chatId, content, onEvent) {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
+    credentials: "include",
     body: JSON.stringify({ content })
   });
 
