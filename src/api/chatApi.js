@@ -66,12 +66,53 @@ export async function getMessagesApi(chatId, cursor, limit = 20) {
 }
 
 /**
- * Send a message to a chat.
+ * Stream a message to a chat using Server-Sent Events.
  * @param {string} chatId
  * @param {string} content
- * @returns {Promise<{userMessage: object, assistantMessage: object}>}
+ * @param {function} onEvent - Callback for SSE events
+ * @returns {Promise<void>}
  */
-export async function sendMessageApi(chatId, content) {
-  const { data } = await api.post(`/chats/${chatId}/messages`, { content });
-  return data.data;
+export async function streamMessageApi(chatId, content, onEvent) {
+  const token = localStorage.getItem("token");
+  
+  const response = await fetch(`${api.defaults.baseURL}/chats/${chatId}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify({ content })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    
+    let boundary = buffer.indexOf("\n\n");
+    while (boundary !== -1) {
+      const chunk = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+      
+      if (chunk.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(chunk.slice(6));
+          onEvent(data);
+        } catch (e) {
+          console.error("Error parsing SSE JSON:", e);
+        }
+      }
+      
+      boundary = buffer.indexOf("\n\n");
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { getMessagesApi, sendMessageApi } from "../api/chatApi.js";
+import { getMessagesApi, streamMessageApi } from "../api/chatApi.js";
 
 /**
  * Hook for fetching messages in a chat with cursor-based pagination.
@@ -37,7 +37,7 @@ export function useSendMessage(chatId) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (content) => sendMessageApi(chatId, content),
+    mutationFn: ({ content, onEvent }) => streamMessageApi(chatId, content, onEvent),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chats", chatId, "messages"] });
       queryClient.invalidateQueries({ queryKey: ["chats"] });

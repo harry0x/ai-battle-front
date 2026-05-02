@@ -14,6 +14,9 @@ export default function ChatWindow({ chatId }) {
 
   const messages = messageData?.messages || [];
 
+  const [tempUserMessage, setTempUserMessage] = useState(null);
+  const [streamingMessage, setStreamingMessage] = useState(null);
+
   // Auto-scroll on new messages
   useEffect(() => {
     if (scrollRef.current) {
@@ -22,13 +25,60 @@ export default function ChatWindow({ chatId }) {
         behavior: "smooth",
       });
     }
-  }, [messages, sendMessage.isPending]);
+  }, [messages, tempUserMessage, streamingMessage]);
 
   const handleSend = async (content) => {
     try {
-      await sendMessage.mutateAsync(content);
+      setTempUserMessage({ role: 'user', content, _id: 'temp-user', createdAt: new Date().toISOString() });
+      setStreamingMessage({
+        role: 'assistant',
+        _id: 'temp-assistant',
+        content: JSON.stringify({ mistral: "", cohere: "", judge: null }),
+        createdAt: new Date().toISOString()
+      });
+
+      await sendMessage.mutateAsync({
+        content,
+        onEvent: (event) => {
+          if (event.type === 'user_message') {
+            setTempUserMessage(null);
+          } else if (event.type === 'mistral_chunk' || event.type === 'cohere_chunk') {
+            setStreamingMessage(prev => {
+              const data = prev ? JSON.parse(prev.content) : { mistral: "", cohere: "", judge: null };
+              if (event.type === 'mistral_chunk') data.mistral += event.chunk;
+              if (event.type === 'cohere_chunk') data.cohere += event.chunk;
+              return { ...prev, content: JSON.stringify(data) };
+            });
+          } else if (event.type === 'judge_result') {
+            setStreamingMessage(prev => {
+              const data = prev ? JSON.parse(prev.content) : { mistral: "", cohere: "", judge: null };
+              data.judge = event.data;
+              data.judge.winner = (data.judge.solution_1_score || 0) > (data.judge.solution_2_score || 0) 
+                ? "Mistral" 
+                : (data.judge.solution_2_score || 0) > (data.judge.solution_1_score || 0)
+                ? "Cohere" : "Tie";
+              data.judge.mistralScore = data.judge.solution_1_score;
+              data.judge.cohereScore = data.judge.solution_2_score;
+              data.judge.mistralReasoning = data.judge.solution_1_reasoning;
+              data.judge.cohereReasoning = data.judge.solution_2_reasoning;
+              return { ...prev, content: JSON.stringify(data) };
+            });
+          } else if (event.type === 'done') {
+            setStreamingMessage(null);
+          } else if (event.type === 'error') {
+            setStreamingMessage({
+               role: 'assistant',
+               _id: 'temp-assistant-error',
+               content: JSON.stringify({ error: true, message: event.message }),
+               createdAt: new Date().toISOString()
+            });
+          }
+        }
+      });
     } catch (err) {
       console.error("Failed to send message:", err);
+      setTempUserMessage(null);
+      setStreamingMessage(null);
     }
   };
 
@@ -61,7 +111,7 @@ export default function ChatWindow({ chatId }) {
                 Loading messages...
               </div>
             </div>
-          ) : messages.length === 0 ? (
+          ) : messages.length === 0 && !tempUserMessage ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-up">
               <div className="w-14 h-14 rounded-2xl bg-accent-light flex items-center justify-center mb-5">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -72,23 +122,13 @@ export default function ChatWindow({ chatId }) {
               <p className="text-sm text-text-secondary">Type a message below to begin.</p>
             </div>
           ) : (
-            messages.map((msg) => (
-              <MessageBubble key={msg._id} message={msg} />
-            ))
-          )}
-
-          {/* Sending indicator */}
-          {sendMessage.isPending && (
-            <div className="flex justify-start py-2 animate-fade-up">
-              <div className="flex items-center gap-2 text-sm text-text-muted px-4 py-3 rounded-2xl bg-surface-sunken">
-                <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-                Thinking...
-              </div>
-            </div>
+            <>
+              {messages.map((msg) => (
+                <MessageBubble key={msg._id} message={msg} />
+              ))}
+              {tempUserMessage && <MessageBubble key="temp-user" message={tempUserMessage} />}
+              {streamingMessage && <MessageBubble key="temp-assistant" message={streamingMessage} />}
+            </>
           )}
         </div>
       </div>

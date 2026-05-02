@@ -116,38 +116,49 @@ export default function MessageBubble({ message }) {
         </div>
 
         {/* Judge Section */}
-        <div className="bg-accent/5 rounded-2xl border border-accent/20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4">
-             <div className="bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                Winner: {comparisonData.judge.winner}
-             </div>
-          </div>
-          <div className="p-4 border-b border-accent/10">
-            <h3 className="text-sm font-bold text-accent flex items-center gap-2">
-              <span className="text-lg">⚖️</span> Judge Evaluation (Gemini)
-            </h3>
-          </div>
-          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="flex items-end gap-2 mb-2">
-                <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Mistral Score</span>
-                <span className="text-xl font-black text-blue-400 leading-none">{comparisonData.judge.mistralScore}<span className="text-sm text-text-muted">/10</span></span>
-              </div>
-              <p className="text-sm text-text-secondary leading-relaxed">
-                {comparisonData.judge.mistralReasoning}
-              </p>
+        {comparisonData.judge ? (
+          <div className="bg-accent/5 rounded-2xl border border-accent/20 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4">
+               <div className="bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  Winner: {comparisonData.judge.winner}
+               </div>
             </div>
-            <div>
-               <div className="flex items-end gap-2 mb-2">
-                <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Cohere Score</span>
-                <span className="text-xl font-black text-emerald-400 leading-none">{comparisonData.judge.cohereScore}<span className="text-sm text-text-muted">/10</span></span>
+            <div className="p-4 border-b border-accent/10">
+              <h3 className="text-sm font-bold text-accent flex items-center gap-2">
+                <span className="text-lg">⚖️</span> Judge Evaluation (Gemini)
+              </h3>
+            </div>
+            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="flex items-end gap-2 mb-2">
+                  <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Mistral Score</span>
+                  <span className="text-xl font-black text-blue-400 leading-none">{comparisonData.judge.mistralScore}<span className="text-sm text-text-muted">/10</span></span>
+                </div>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  {comparisonData.judge.mistralReasoning}
+                </p>
               </div>
-              <p className="text-sm text-text-secondary leading-relaxed">
-                {comparisonData.judge.cohereReasoning}
-              </p>
+              <div>
+                 <div className="flex items-end gap-2 mb-2">
+                  <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Cohere Score</span>
+                  <span className="text-xl font-black text-emerald-400 leading-none">{comparisonData.judge.cohereScore}<span className="text-sm text-text-muted">/10</span></span>
+                </div>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  {comparisonData.judge.cohereReasoning}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-accent/5 rounded-2xl border border-accent/20 p-4 flex items-center justify-center gap-3">
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+            </div>
+            <span className="text-sm text-accent font-medium">Judge is evaluating models...</span>
+          </div>
+        )}
 
         {/* Full Screen Modal */}
         {expandedModel && (
