@@ -118,3 +118,51 @@ export async function streamMessageApi(chatId, content, onEvent) {
     }
   }
 }
+
+/**
+ * Stream a message to a guest chat using Server-Sent Events.
+ * @param {string} content
+ * @param {function} onEvent - Callback for SSE events
+ * @returns {Promise<void>}
+ */
+export async function streamGuestMessageApi(content, onEvent) {
+  const response = await fetch(`${api.defaults.baseURL}/chats/guest/stream`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ content })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    
+    let boundary = buffer.indexOf("\n\n");
+    while (boundary !== -1) {
+      const chunk = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+      
+      if (chunk.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(chunk.slice(6));
+          onEvent(data);
+        } catch (e) {
+          console.error("Error parsing SSE JSON:", e);
+        }
+      }
+      
+      boundary = buffer.indexOf("\n\n");
+    }
+  }
+}

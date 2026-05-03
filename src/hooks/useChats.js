@@ -5,10 +5,11 @@ import { getChatsApi, createChatApi, deleteChatApi, updateChatTitleApi } from ".
  * Hook for fetching the user's chat list with pagination.
  * Uses TanStack Query for caching and automatic refetching.
  */
-export function useChats(page = 1, limit = 20) {
+export function useChats(page = 1, limit = 20, enabled = true) {
   return useQuery({
     queryKey: ["chats", page, limit],
     queryFn: () => getChatsApi(page, limit),
+    enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

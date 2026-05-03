@@ -63,15 +63,15 @@ export default function MessageBubble({ message }) {
         </div>
         
         {/* Parallel View */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Mistral Box */}
-          <div className="flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full flex items-center justify-center bg-surface-sunken border border-border text-text-primary text-xs">M</span>
-                Mistral
+          <div className="flex flex-col bg-surface-sunken rounded-2xl border border-border overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500/10 to-transparent p-3 border-b border-border flex justify-between items-center">
+              <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
+                <span className="w-5 h-5 rounded flex items-center justify-center bg-blue-500/20 text-blue-500">M</span>
+                Mistral Model
               </h3>
-              <div className="flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1">
                 <CopyButton text={comparisonData.mistral} />
                 <button
                   onClick={() => setExpandedModel('mistral')}
@@ -84,19 +84,26 @@ export default function MessageBubble({ message }) {
                 </button>
               </div>
             </div>
-            <div className="prose prose-sm max-w-none text-text-primary">
-              <ReactMarkdown>{comparisonData.mistral}</ReactMarkdown>
+            <div className="p-4 prose prose-sm max-w-none text-text-secondary overflow-y-auto max-h-[600px]">
+              {comparisonData.mistral ? (
+                <ReactMarkdown>{comparisonData.mistral}</ReactMarkdown>
+              ) : (
+                <div className="flex items-center gap-2 text-text-muted animate-pulse">
+                  <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  Generating...
+                </div>
+              )}
             </div>
           </div>
           
           {/* Cohere Box */}
-          <div className="flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full flex items-center justify-center bg-surface-sunken border border-border text-text-primary text-xs">C</span>
-                Cohere
+          <div className="flex flex-col bg-surface-sunken rounded-2xl border border-border overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-500/10 to-transparent p-3 border-b border-border flex justify-between items-center">
+              <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
+                <span className="w-5 h-5 rounded flex items-center justify-center bg-emerald-500/20 text-emerald-500">C</span>
+                Cohere Model
               </h3>
-              <div className="flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1">
                 <CopyButton text={comparisonData.cohere} />
                 <button
                   onClick={() => setExpandedModel('cohere')}
@@ -109,25 +116,33 @@ export default function MessageBubble({ message }) {
                 </button>
               </div>
             </div>
-            <div className="prose prose-sm max-w-none text-text-primary">
-              <ReactMarkdown>{comparisonData.cohere}</ReactMarkdown>
+            <div className="p-4 prose prose-sm max-w-none text-text-secondary overflow-y-auto max-h-[600px]">
+              {comparisonData.cohere ? (
+                <ReactMarkdown>{comparisonData.cohere}</ReactMarkdown>
+              ) : (
+                <div className="flex items-center gap-2 text-text-muted animate-pulse">
+                  <div className="w-3 h-3 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  Generating...
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Judge Section */}
         {comparisonData.judge ? (
-          <div className="pt-6 border-t border-border mt-2">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full flex items-center justify-center bg-surface-sunken border border-border text-text-primary text-xs">G</span>
-                Gemini Judge
-              </h3>
-              <div className="bg-surface-sunken text-text-primary text-xs font-semibold px-3 py-1 rounded-full border border-border">
-                Winner: <span className="text-accent ml-1">{comparisonData.judge.winner}</span>
-              </div>
+          <div className="bg-accent/5 rounded-2xl border border-accent/20 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4">
+               <div className="bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  Winner: {comparisonData.judge.winner}
+               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-4 border-b border-accent/10">
+              <h3 className="text-sm font-bold text-accent flex items-center gap-2">
+                <span className="text-lg">⚖️</span> Judge Evaluation (Gemini)
+              </h3>
+            </div>
+            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>

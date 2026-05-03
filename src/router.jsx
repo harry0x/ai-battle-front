@@ -21,6 +21,13 @@ const router = createBrowserRouter([
       { path: "/register", element: <RegisterPage /> },
     ],
   },
+  // Public App Routes (Guest chat allowed)
+  {
+    element: <AppLayout />,
+    children: [
+      { path: "/", element: <ChatPage /> },
+    ],
+  },
   // Protected routes
   {
     element: <ProtectedRoute />,
@@ -28,7 +35,6 @@ const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: "/", element: <ChatPage /> },
           { path: "/chat/:chatId", element: <ChatPage /> },
           { path: "/history", element: <HistoryPage /> },
         ],

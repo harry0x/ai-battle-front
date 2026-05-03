@@ -8,11 +8,15 @@ import ChatInput from "./ChatInput.jsx";
  * Displays messages and input for a specific chat.
  */
 export default function ChatWindow({ chatId }) {
-  const { data: messageData, isLoading, error } = useMessages(chatId);
+  const isGuest = chatId === "guest";
+  
+  // Only fetch messages if not a guest
+  const { data: messageData, isLoading, error } = useMessages(isGuest ? null : chatId);
   const sendMessage = useSendMessage(chatId);
   const scrollRef = useRef(null);
 
-  const messages = messageData?.messages || [];
+  const [guestMessages, setGuestMessages] = useState([]);
+  const messages = isGuest ? guestMessages : (messageData?.messages || []);
 
   const [tempUserMessage, setTempUserMessage] = useState(null);
   const [streamingMessage, setStreamingMessage] = useState(null);
@@ -29,68 +33,80 @@ export default function ChatWindow({ chatId }) {
 
   const handleSend = async (content) => {
     try {
-      setTempUserMessage({
+      const newUserMsg = {
         role: "user",
         content,
-        _id: "temp-user",
+        _id: `temp-user-${Date.now()}`,
         createdAt: new Date().toISOString(),
-      });
+      };
+      
+      setTempUserMessage(newUserMsg);
       setStreamingMessage({
         role: "assistant",
-        _id: "temp-assistant",
+        _id: `temp-assistant-${Date.now()}`,
         content: JSON.stringify({ mistral: "", cohere: "", judge: null }),
         createdAt: new Date().toISOString(),
       });
 
-      await sendMessage.mutateAsync({
-        content,
-        onEvent: (event) => {
-          if (event.type === "user_message") {
-            setTempUserMessage(null);
-          } else if (
-            event.type === "mistral_chunk" ||
-            event.type === "cohere_chunk"
-          ) {
-            setStreamingMessage((prev) => {
-              const data = prev
-                ? JSON.parse(prev.content)
-                : { mistral: "", cohere: "", judge: null };
-              if (event.type === "mistral_chunk") data.mistral += event.chunk;
-              if (event.type === "cohere_chunk") data.cohere += event.chunk;
-              return { ...prev, content: JSON.stringify(data) };
-            });
-          } else if (event.type === "judge_result") {
-            setStreamingMessage((prev) => {
-              const data = prev
-                ? JSON.parse(prev.content)
-                : { mistral: "", cohere: "", judge: null };
-              data.judge = event.data;
-              data.judge.winner =
-                (data.judge.solution_1_score || 0) >
-                (data.judge.solution_2_score || 0)
-                  ? "Mistral"
-                  : (data.judge.solution_2_score || 0) >
-                      (data.judge.solution_1_score || 0)
-                    ? "Cohere"
-                    : "Tie";
-              data.judge.mistralScore = data.judge.solution_1_score;
-              data.judge.cohereScore = data.judge.solution_2_score;
-              data.judge.mistralReasoning = data.judge.solution_1_reasoning;
-              data.judge.cohereReasoning = data.judge.solution_2_reasoning;
-              return { ...prev, content: JSON.stringify(data) };
-            });
-          } else if (event.type === "done") {
-            setStreamingMessage(null);
-          } else if (event.type === "error") {
-            setStreamingMessage({
-              role: "assistant",
-              _id: "temp-assistant-error",
-              content: JSON.stringify({ error: true, message: event.message }),
-              createdAt: new Date().toISOString(),
-            });
+      const onEvent = (event) => {
+        if (event.type === "user_message") {
+          if (isGuest) {
+            setGuestMessages(prev => [...prev, newUserMsg]);
           }
-        },
-      });
+          setTempUserMessage(null);
+        } else if (
+          event.type === "mistral_chunk" ||
+          event.type === "cohere_chunk"
+        ) {
+          setStreamingMessage((prev) => {
+            if (!prev) return prev;
+            const data = JSON.parse(prev.content || '{"mistral":"","cohere":"","judge":null}');
+            if (event.type === "mistral_chunk") data.mistral += event.chunk;
+            if (event.type === "cohere_chunk") data.cohere += event.chunk;
+            return { ...prev, content: JSON.stringify(data) };
+          });
+        } else if (event.type === "judge_result") {
+          setStreamingMessage((prev) => {
+            if (!prev) return prev;
+            const data = JSON.parse(prev.content);
+            data.judge = event.data;
+            data.judge.winner =
+              (data.judge.solution_1_score || 0) >
+              (data.judge.solution_2_score || 0)
+                ? "Mistral"
+                : (data.judge.solution_2_score || 0) >
+                    (data.judge.solution_1_score || 0)
+                  ? "Cohere"
+                  : "Tie";
+            data.judge.mistralScore = data.judge.solution_1_score;
+            data.judge.cohereScore = data.judge.solution_2_score;
+            data.judge.mistralReasoning = data.judge.solution_1_reasoning;
+            data.judge.cohereReasoning = data.judge.solution_2_reasoning;
+            return { ...prev, content: JSON.stringify(data) };
+          });
+        } else if (event.type === "done") {
+          setStreamingMessage((prev) => {
+            if (isGuest && prev) {
+              setGuestMessages(msgs => [...msgs, prev]);
+            }
+            return null;
+          });
+        } else if (event.type === "error") {
+          setStreamingMessage({
+            role: "assistant",
+            _id: "temp-assistant-error",
+            content: JSON.stringify({ error: true, message: event.message }),
+            createdAt: new Date().toISOString(),
+          });
+        }
+      };
+
+      if (isGuest) {
+        const { streamGuestMessageApi } = await import("../../api/chatApi.js");
+        await streamGuestMessageApi(content, onEvent);
+      } else {
+        await sendMessage.mutateAsync({ content, onEvent });
+      }
     } catch (err) {
       console.error("Failed to send message:", err);
       setTempUserMessage(null);
@@ -98,7 +114,7 @@ export default function ChatWindow({ chatId }) {
     }
   };
 
-  if (error) {
+  if (error && !isGuest) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">

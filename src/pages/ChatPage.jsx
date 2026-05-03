@@ -1,16 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
 import ChatWindow from "../components/chat/ChatWindow.jsx";
 import { useCreateChat } from "../hooks/useChats.js";
+import { useAuth } from "../hooks/useAuth.js";
 
 /**
  * Main chat page.
  * If chatId param exists, shows that chat.
+ * If no chatId and user is logged out, shows a guest chat window.
  * Otherwise shows an empty state with new chat prompt.
  */
 export default function ChatPage() {
   const { chatId } = useParams();
   const navigate = useNavigate();
   const createChat = useCreateChat();
+  const { user } = useAuth();
 
   const handleNewChat = async () => {
     try {
@@ -22,7 +25,12 @@ export default function ChatPage() {
   };
 
   if (!chatId) {
-    // Empty state — no chat selected
+    if (!user) {
+      // Guest mode
+      return <ChatWindow chatId="guest" />;
+    }
+
+    // Empty state — no chat selected for logged in users
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center animate-fade-up">
