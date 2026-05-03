@@ -138,58 +138,75 @@ export default function ChatWindow({ chatId }) {
     );
   }
 
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Messages area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-4 py-6 space-y-1">
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="flex items-center gap-3 text-sm text-text-muted">
-                <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                Loading messages...
-              </div>
-            </div>
-          ) : messages.length === 0 && !tempUserMessage ? (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-up">
-              <div className="w-14 h-14 rounded-2xl bg-accent-light flex items-center justify-center mb-5">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-                    stroke="#6366f1"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-lg font-semibold text-text-primary mb-1">
-                Start a conversation
-              </h2>
-              <p className="text-sm text-text-secondary">
-                Type a message below to begin.
-              </p>
-            </div>
-          ) : (
-            <>
-              {messages.map((msg) => (
-                <MessageBubble key={msg._id} message={msg} />
-              ))}
-              {tempUserMessage && (
-                <MessageBubble key="temp-user" message={tempUserMessage} />
-              )}
-              {streamingMessage && (
-                <MessageBubble
-                  key="temp-assistant"
-                  message={streamingMessage}
-                />
-              )}
-            </>
-          )}
-        </div>
-      </div>
+  const isEmpty = messages.length === 0 && !tempUserMessage;
+  const isGenerating = !!(tempUserMessage || streamingMessage) || (sendMessage && sendMessage.isPending);
 
-      {/* Input */}
-      <ChatInput onSubmit={handleSend} disabled={sendMessage.isPending} />
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden relative bg-surface">
+      {/* Guest Header */}
+      {isGuest && (
+        <div className="absolute top-4 right-6 z-10 flex items-center gap-3 animate-fade-up">
+          <button 
+            onClick={() => window.location.href = '/login'} 
+            className="px-4 py-2 rounded-full text-sm font-medium hover:bg-surface-sunken transition-colors text-text-primary"
+          >
+            Log in
+          </button>
+          <button 
+            onClick={() => window.location.href = '/register'} 
+            className="px-4 py-2 rounded-full bg-text-primary text-surface text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Sign up
+          </button>
+        </div>
+      )}
+
+      {isEmpty ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-8 text-center animate-fade-up">
+            What's on your mind today?
+          </h1>
+          <div className="w-full max-w-3xl animate-fade-up">
+            <ChatInput onSubmit={handleSend} disabled={isGenerating} />
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Messages area */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto">
+            <div className="max-w-5xl mx-auto px-4 py-6 space-y-1">
+              {isLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="flex items-center gap-3 text-sm text-text-muted">
+                    <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+                    Loading messages...
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((msg) => (
+                    <MessageBubble key={msg._id} message={msg} />
+                  ))}
+                  {tempUserMessage && (
+                    <MessageBubble key="temp-user" message={tempUserMessage} />
+                  )}
+                  {streamingMessage && (
+                    <MessageBubble
+                      key="temp-assistant"
+                      message={streamingMessage}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Input Area (Bottom) */}
+          <div className="max-w-5xl mx-auto w-full">
+            <ChatInput onSubmit={handleSend} disabled={isGenerating} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
