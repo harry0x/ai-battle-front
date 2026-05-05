@@ -9,19 +9,22 @@ A high-end, minimalist AI comparison chat interface designed to evaluate and com
 
 ## ✨ Features
 
-- **Side-by-Side Comparison**: View two independent AI solutions for any coding challenge simultaneously.
-- **Automated Judge Analysis**: Each comparison includes a detailed breakdown from a "Judge" AI, providing scores and reasoning.
-- **Modern Minimalist UI**: Built with the "Aether Silk" design philosophy—clean lines, curated typography, and smooth transitions.
+- **Side-by-Side Comparison**: View multiple independent AI solutions for any coding challenge simultaneously in real-time.
+- **Real-Time Streaming**: Connects via Server-Sent Events (SSE) to stream model responses instantly.
+- **Authentication & Guest Mode**: Seamless Perplexity-style authentication flow alongside Guest chat support for unauthenticated users.
+- **Automated Judge Analysis**: Detailed breakdown and evaluation from an AI judge, providing scores and reasoning.
+- **Modern Minimalist UI**: Built with the "Aether Silk" design philosophy—clean lines, curated typography, glassmorphism, and smooth transitions.
 - **Rich Markdown Support**: Full support for code snippets, lists, and formatted text using `react-markdown`.
-- **Responsive & Interactive**: Glassmorphism headers, auto-scrolling message history, and elegant loading states.
 
 ## 🛠️ Tech Stack
 
 - **Framework**: [React 19](https://react.dev/)
 - **Build Tool**: [Vite 7](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Typography**: Inter (Sans) & JetBrains Mono (Code)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Routing**: [React Router v7](https://reactrouter.com/)
 - **Content Parsing**: `react-markdown`
+- **Typography**: Inter (Sans) & JetBrains Mono (Code)
 
 ## 🚀 Getting Started
 
@@ -32,17 +35,28 @@ A high-end, minimalist AI comparison chat interface designed to evaluate and com
 
 ### Installation
 
-1. Install dependencies:
+1. Navigate to the frontend directory:
+   ```bash
+   cd langraph-comparison/Frontend
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the development server:
+3. Configure environment:
+   ```bash
+   cp .env.example .env
+   # Add your frontend environment variables
+   ```
+
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-3. Build for production:
+5. Build for production:
    ```bash
    npm run build
    ```
@@ -51,20 +65,26 @@ A high-end, minimalist AI comparison chat interface designed to evaluate and com
 
 ```text
 src/
-├── app/
-│   ├── components/     # UI Components (ChatInput, MessageGroup, etc.)
-│   ├── App.jsx         # Main application logic and layout
-│   └── App.css         # Design system tokens and global styles
-└── main.jsx            # Entry point
+├── api/          # API client and endpoints
+├── components/   # Reusable UI components (ChatInput, MessageGroup, etc.)
+├── hooks/        # Custom React hooks
+├── lib/          # Utilities and configurations
+├── pages/        # Route pages (ChatPage, LoginPage, RegisterPage, HistoryPage)
+├── store/        # Zustand state stores (authStore)
+├── utils/        # Helper functions
+├── App.jsx       # Main application component
+├── router.jsx    # Application routing configuration
+├── index.css     # Design system tokens and Tailwind styles
+└── main.jsx      # React DOM entry point
 ```
 
 ## 🎨 Design Philosophy
 
 This project follows a **curated editorial aesthetic**:
 - **Typography-first**: Prioritizing readability with Inter and JetBrains Mono.
-- **Subtle Interactions**: Using `animate-fade-up` and micro-animations for a "live" feel.
+- **Subtle Interactions**: Clean transitions and loading states for a "live" feel.
 - **Intentional Spacing**: Wide margins and generous line heights to reduce cognitive load.
-- **Clean Color Palette**: A soft `#fafafa` surface with indigo accents for a premium look.
+- **Clean Color Palette**: A sleek, focused interface built for prolonged usage.
 
 ---
 
