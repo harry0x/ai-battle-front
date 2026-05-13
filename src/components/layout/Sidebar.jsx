@@ -6,7 +6,8 @@ import { useTheme } from "../../hooks/useTheme.js";
 import { formatDate } from "../../utils/formatDate.js";
 
 /**
- * Sidebar component with recent chats, new chat button, and user actions.
+ * Sidebar component for logged-in users.
+ * Shows recent chats, new chat button, history, and user profile.
  */
 export default function Sidebar({ isOpen, onToggle }) {
   const navigate = useNavigate();
@@ -30,10 +31,6 @@ export default function Sidebar({ isOpen, onToggle }) {
     : chats;
 
   const handleNewChat = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     try {
       const { chat } = await createChat.mutateAsync();
       navigate(`/chat/${chat._id}`);
@@ -57,22 +54,22 @@ export default function Sidebar({ isOpen, onToggle }) {
   return (
     <aside className="w-72 h-full flex flex-col bg-surface-raised border-r border-border flex-shrink-0">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between border-b border-border">
+      <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-indigo-400 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-orange-400 flex items-center justify-center animate-pulse-glow">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M7 1L2 4.5V9.5L7 13L12 9.5V4.5L7 1Z" stroke="white" strokeWidth="1.3" strokeLinejoin="round"/>
               <path d="M7 5V9" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
               <path d="M5 7H9" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
           </div>
-          <span className="text-sm font-semibold text-text-primary tracking-tight">
-            {import.meta.env.VITE_APP_NAME || "AI Battle"}
+          <span className="text-sm font-bold text-text-primary tracking-tight">
+            AI Battle
           </span>
         </div>
         <button
           onClick={onToggle}
-          className="p-1.5 rounded-md hover:bg-surface-sunken transition-colors text-text-muted"
+          className="p-1.5 rounded-lg hover:bg-surface-sunken transition-colors text-text-muted hover:text-text-primary"
           aria-label="Close sidebar"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -82,14 +79,14 @@ export default function Sidebar({ isOpen, onToggle }) {
       </div>
 
       {/* New Chat Button */}
-      <div className="p-3">
+      <div className="px-3 pb-2">
         <button
           onClick={handleNewChat}
           disabled={createChat.isPending}
-          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer shadow-sm shadow-accent/20"
           id="new-chat-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M12 5v14M5 12h14" />
           </svg>
           {createChat.isPending ? "Creating..." : "New Chat"}
@@ -99,7 +96,7 @@ export default function Sidebar({ isOpen, onToggle }) {
       {/* Search */}
       <div className="px-3 pb-2">
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
@@ -133,10 +130,10 @@ export default function Sidebar({ isOpen, onToggle }) {
               <button
                 key={chat._id}
                 onClick={() => navigate(`/chat/${chat._id}`)}
-                className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer ${
+                className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? "bg-accent/10 text-accent"
-                    : "text-text-secondary hover:bg-surface-sunken"
+                    ? "bg-accent/10 text-accent border border-accent/15"
+                    : "text-text-secondary hover:bg-surface-sunken border border-transparent"
                 }`}
               >
                 <div className="flex-1 min-w-0">
@@ -149,7 +146,7 @@ export default function Sidebar({ isOpen, onToggle }) {
                 </div>
                 <button
                   onClick={(e) => handleDeleteChat(e, chat._id)}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 hover:text-red-500 transition-all text-text-muted cursor-pointer"
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-500/10 hover:text-red-500 transition-all text-text-muted cursor-pointer"
                   aria-label="Delete chat"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -162,11 +159,11 @@ export default function Sidebar({ isOpen, onToggle }) {
         )}
       </nav>
 
-      {/* Navigation */}
+      {/* Navigation - History */}
       <div className="px-2 py-2 border-t border-border">
         <button
           onClick={() => navigate("/history")}
-          className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
             location.pathname === "/history"
               ? "bg-accent/10 text-accent"
               : "text-text-secondary hover:bg-surface-sunken"
@@ -182,92 +179,61 @@ export default function Sidebar({ isOpen, onToggle }) {
 
       {/* User section */}
       <div className="p-3 border-t border-border">
-        {user ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-indigo-400 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-semibold text-white">
-                  {user.name?.charAt(0)?.toUpperCase() || "?"}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-text-primary truncate">{user.name || "User"}</p>
-                <p className="text-[10px] text-text-muted truncate">{user.email || ""}</p>
-              </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-orange-400 flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-bold text-white">
+                {user?.name?.charAt(0)?.toUpperCase() || "?"}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={cycleTheme}
-                className="p-1.5 rounded-md hover:bg-surface-sunken transition-colors text-text-muted cursor-pointer"
-                title={`Theme: ${theme}`}
-                aria-label="Toggle theme"
-              >
-                {theme === 'light' ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="5" />
-                    <line x1="12" y1="1" x2="12" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="23" />
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                    <line x1="1" y1="12" x2="3" y2="12" />
-                    <line x1="21" y1="12" x2="23" y2="12" />
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                  </svg>
-                ) : theme === 'dark' ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                  </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                    <line x1="8" y1="21" x2="16" y2="21" />
-                    <line x1="12" y1="17" x2="12" y2="21" />
-                  </svg>
-                )}
-              </button>
-              <button
-                onClick={logout}
-                className="p-1.5 rounded-md hover:bg-red-50 hover:text-red-500 transition-colors text-text-muted cursor-pointer"
-                aria-label="Logout"
-                id="logout-btn"
-              >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-              </svg>
-            </button>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-text-primary truncate">{user?.name || "User"}</p>
+              <p className="text-[10px] text-text-muted truncate">{user?.email || ""}</p>
             </div>
           </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-full border border-border bg-surface-sunken flex items-center justify-center flex-shrink-0">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-text-muted" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-text-primary">Guest User</p>
-                <button onClick={() => navigate("/login")} className="text-[10px] text-accent hover:underline">Sign in to save chats</button>
-              </div>
-            </div>
+          <div className="flex items-center gap-0.5">
             <button
               onClick={cycleTheme}
-              className="p-1.5 rounded-md hover:bg-surface-sunken transition-colors text-text-muted cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-surface-sunken transition-colors text-text-muted cursor-pointer"
               title={`Theme: ${theme}`}
               aria-label="Toggle theme"
             >
               {theme === 'light' ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
               ) : theme === 'dark' ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
               ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
               )}
             </button>
+            <button
+              onClick={logout}
+              className="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors text-text-muted cursor-pointer"
+              aria-label="Logout"
+              id="logout-btn"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </aside>
   );
