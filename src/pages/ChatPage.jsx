@@ -26,34 +26,34 @@ export default function ChatPage() {
 
   if (!chatId) {
     if (!user) {
-      // Guest mode
+      // Guest mode — clean chat experience
       return <ChatWindow chatId="guest" />;
     }
 
-    // Empty state — no chat selected for logged in users
+    // Logged in user — empty state
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center animate-fade-up">
-          <div className="w-16 h-16 rounded-2xl bg-accent-light flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-orange-400 flex items-center justify-center mx-auto mb-6 animate-pulse-glow">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3L4 7.5V16.5L12 21L20 16.5V7.5L12 3Z" stroke="#6366f1" strokeWidth="1.5" strokeLinejoin="round"/>
-              <path d="M12 8V16" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M8 12H16" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M12 3L4 7.5V16.5L12 21L20 16.5V7.5L12 3Z" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
+              <path d="M12 8V16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M8 12H16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-text-primary mb-2 tracking-tight">
-            {import.meta.env.VITE_APP_NAME || "AI Battle"}
+          <h1 className="text-2xl font-bold text-text-primary mb-2 tracking-tight">
+            Start a <span className="text-gradient">Battle</span>
           </h1>
-          <p className="text-sm text-text-secondary mb-8 max-w-sm leading-relaxed">
-            Start a new conversation or select an existing chat from the sidebar.
+          <p className="text-sm text-text-muted mb-8 max-w-sm leading-relaxed">
+            Create a new chat and let AI agents compete for the best answer.
           </p>
           <button
             onClick={handleNewChat}
             disabled={createChat.isPending}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-50 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer shadow-md shadow-accent/20"
             id="new-chat-hero-btn"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14" />
             </svg>
             {createChat.isPending ? "Creating..." : "New Chat"}

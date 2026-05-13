@@ -32,15 +32,15 @@ export default function ChatInput({ onSubmit, disabled = false }) {
   };
 
   return (
-    <div className="flex-shrink-0 border-t border-border bg-surface-raised/80 backdrop-blur-lg">
+    <div className="flex-shrink-0 glass border-t border-border">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 py-4">
-        <div className="flex items-end gap-3 bg-surface-sunken rounded-2xl border border-border focus-within:border-accent/40 transition-colors px-4 py-2">
+        <div className="flex items-end gap-3 bg-surface-raised rounded-2xl border border-border focus-within:border-accent/40 focus-within:shadow-[0_0_0_3px_var(--color-accent-glow)] transition-all px-4 py-2">
           <textarea
             ref={textareaRef}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
+            placeholder="Ask anything..."
             disabled={disabled}
             rows={1}
             className="flex-1 resize-none bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none py-1.5 max-h-40 leading-relaxed"
@@ -49,7 +49,7 @@ export default function ChatInput({ onSubmit, disabled = false }) {
           <button
             type="submit"
             disabled={disabled || !value.trim()}
-            className="flex-shrink-0 w-8 h-8 rounded-xl bg-accent text-white flex items-center justify-center hover:bg-accent/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="flex-shrink-0 w-9 h-9 rounded-xl bg-accent text-white flex items-center justify-center hover:brightness-110 disabled:opacity-20 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm shadow-accent/20"
             id="send-btn"
           >
             <svg
@@ -58,9 +58,9 @@ export default function ChatInput({ onSubmit, disabled = false }) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
             >
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
