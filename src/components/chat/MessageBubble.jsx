@@ -32,6 +32,15 @@ const CopyButton = ({ text }) => {
   );
 };
 
+/** Maps backend model names to generic agent labels */
+const toAgentName = (name) => {
+  if (!name) return name;
+  const n = name.toLowerCase();
+  if (n === "mistral") return "Agent 1";
+  if (n === "cohere") return "Agent 2";
+  return name; // "Tie" or anything else stays as-is
+};
+
 export default function MessageBubble({ message }) {
   const { user } = useAuthStore();
   const isUser = message.role === "user";
@@ -146,7 +155,7 @@ export default function MessageBubble({ message }) {
                 Judge Agent
               </h3>
               <div className="bg-accent text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg shadow-accent/20">
-                Winner: {comparisonData.judge.winner}
+                Winner: {toAgentName(comparisonData.judge.winner)}
               </div>
             </div>
 
