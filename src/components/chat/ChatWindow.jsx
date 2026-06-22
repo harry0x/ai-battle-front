@@ -48,11 +48,14 @@ export default function ChatWindow({ chatId }) {
         createdAt: new Date().toISOString(),
       };
       
+      const assistantId = `temp-assistant-${Date.now()}`;
+      let currentData = { mistral: "", cohere: "", judge: null };
+      
       setTempUserMessage(newUserMsg);
       setStreamingMessage({
         role: "assistant",
-        _id: `temp-assistant-${Date.now()}`,
-        content: JSON.stringify({ mistral: "", cohere: "", judge: null }),
+        _id: assistantId,
+        content: JSON.stringify(currentData),
         createdAt: new Date().toISOString(),
       });
 
@@ -66,39 +69,37 @@ export default function ChatWindow({ chatId }) {
           event.type === "mistral_chunk" ||
           event.type === "cohere_chunk"
         ) {
-          setStreamingMessage((prev) => {
-            if (!prev) return prev;
-            const data = JSON.parse(prev.content || '{"mistral":"","cohere":"","judge":null}');
-            if (event.type === "mistral_chunk") data.mistral += event.chunk;
-            if (event.type === "cohere_chunk") data.cohere += event.chunk;
-            return { ...prev, content: JSON.stringify(data) };
-          });
+          if (event.type === "mistral_chunk") currentData.mistral += event.chunk;
+          if (event.type === "cohere_chunk") currentData.cohere += event.chunk;
+          
+          setStreamingMessage(prev => prev ? { ...prev, content: JSON.stringify(currentData) } : prev);
         } else if (event.type === "judge_result") {
-          setStreamingMessage((prev) => {
-            if (!prev) return prev;
-            const data = JSON.parse(prev.content);
-            data.judge = event.data;
-            data.judge.winner =
-              (data.judge.solution_1_score || 0) >
-              (data.judge.solution_2_score || 0)
-                ? "Agent 1"
-                : (data.judge.solution_2_score || 0) >
-                    (data.judge.solution_1_score || 0)
-                  ? "Agent 2"
-                  : "Tie";
-            data.judge.mistralScore = data.judge.solution_1_score;
-            data.judge.cohereScore = data.judge.solution_2_score;
-            data.judge.mistralReasoning = data.judge.solution_1_reasoning;
-            data.judge.cohereReasoning = data.judge.solution_2_reasoning;
-            return { ...prev, content: JSON.stringify(data) };
-          });
+          currentData.judge = event.data;
+          currentData.judge.winner =
+            (currentData.judge.solution_1_score || 0) >
+            (currentData.judge.solution_2_score || 0)
+              ? "Agent 1"
+              : (currentData.judge.solution_2_score || 0) >
+                  (currentData.judge.solution_1_score || 0)
+                ? "Agent 2"
+                : "Tie";
+          currentData.judge.mistralScore = currentData.judge.solution_1_score;
+          currentData.judge.cohereScore = currentData.judge.solution_2_score;
+          currentData.judge.mistralReasoning = currentData.judge.solution_1_reasoning;
+          currentData.judge.cohereReasoning = currentData.judge.solution_2_reasoning;
+          
+          setStreamingMessage(prev => prev ? { ...prev, content: JSON.stringify(currentData) } : prev);
         } else if (event.type === "done") {
-          setStreamingMessage((prev) => {
-            if (isGuest && prev) {
-              setGuestMessages(msgs => [...msgs, prev]);
-            }
-            return null;
-          });
+          if (isGuest) {
+            const finalMsg = {
+              role: "assistant",
+              _id: assistantId,
+              content: JSON.stringify(currentData),
+              createdAt: new Date().toISOString(),
+            };
+            setGuestMessages(msgs => [...msgs, finalMsg]);
+          }
+          setStreamingMessage(null);
         } else if (event.type === "error") {
           setStreamingMessage({
             role: "assistant",
