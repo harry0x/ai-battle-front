@@ -33,16 +33,12 @@ export default function AuthLayout() {
     <div className="min-h-screen flex items-center justify-center bg-surface noise-bg px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent to-orange-400 flex items-center justify-center shadow-lg shadow-accent/20 animate-pulse-glow">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3L4 7.5V16.5L12 21L20 16.5V7.5L12 3Z" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-              <path d="M12 8V16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M8 12H16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <span className="text-xl font-bold text-text-primary tracking-tight">
-            AI Battle
+        <div className="flex items-baseline justify-center mb-10 select-none">
+          <span className="text-5xl font-medium tracking-wider text-text-secondary font-mono lowercase">
+            versus
+          </span>
+          <span className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-accent to-orange-400 ml-1">
+            AI
           </span>
         </div>
 

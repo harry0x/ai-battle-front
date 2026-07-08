@@ -1,8 +1,8 @@
-# AI Judge — Frontend
+# VersusAI — Frontend
 
 A high-end, minimalist AI comparison chat interface designed to evaluate and compare LLM solutions side-by-side with an automated judge's analysis.
 
-![AI Judge Preview](https://img.shields.io/badge/UI-Aether%20Silk-blueviolet?style=for-the-badge)
+![VersusAI Preview](https://img.shields.io/badge/UI-Aether%20Silk-blueviolet?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Vite](https://img.shields.io/badge/Vite-7.0-646CFF?style=for-the-badge&logo=vite)
@@ -37,7 +37,7 @@ A high-end, minimalist AI comparison chat interface designed to evaluate and com
 
 1. Navigate to the frontend directory:
    ```bash
-   cd langraph-comparison/Frontend
+   cd versus-ai/Frontend
    ```
 
 2. Install dependencies:
